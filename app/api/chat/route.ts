@@ -19,6 +19,31 @@ function extractOrderJson(text: string): { items: LineItem[]; total: number } | 
   return null;
 }
 
+/** GET /api/chat — debug: see what env vars Railway actually provides. */
+export async function GET() {
+  const key =
+    process.env.GOOGLE_GENAI_API_KEY ||
+    process.env.GEMINI_API_KEY ||
+    process.env.GOOGLE_API_KEY;
+  const hasKey = !!key;
+  // Show which env keys exist that might be the Gemini key (names only, no values)
+  const envKeys = Object.keys(process.env).filter(
+    (k) =>
+      k.includes("GEMINI") ||
+      k.includes("GOOGLE") ||
+      k.includes("GENAI")
+  );
+  return NextResponse.json({
+    ok: true,
+    geminiConfigured: hasKey,
+    keyLength: hasKey ? key.length : 0,
+    relevantEnvKeys: envKeys,
+    hint: hasKey
+      ? "Key is set. If chat still fails, the key may be invalid or the model unavailable."
+      : `No Gemini key found. Railway has these related vars: ${envKeys.length ? envKeys.join(", ") : "none"}. If you added GOOGLE_GENAI_API_KEY, redeploy the service (Deployments → ⋮ → Redeploy).`,
+  });
+}
+
 export async function POST(request: Request) {
   const { messages } = (await request.json()) as {
     messages: { role: "user" | "assistant" | "system"; content: string }[];
@@ -26,10 +51,16 @@ export async function POST(request: Request) {
   if (!Array.isArray(messages) || messages.length === 0) {
     return NextResponse.json({ error: "messages required" }, { status: 400 });
   }
-  const apiKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY;
+  const apiKey =
+    process.env.GOOGLE_GENAI_API_KEY ||
+    process.env.GEMINI_API_KEY ||
+    process.env.GOOGLE_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "GOOGLE_GENAI_API_KEY or GEMINI_API_KEY not configured" },
+      {
+        error:
+          "Gemini API key not set. Add GOOGLE_GENAI_API_KEY in Railway → your service → Variables.",
+      },
       { status: 500 }
     );
   }
