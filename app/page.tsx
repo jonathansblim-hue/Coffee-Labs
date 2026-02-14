@@ -37,11 +37,25 @@ export default function CustomerPage() {
             ),
           }),
         });
-        const data = (await res.json()) as {
-          message?: string;
-          error?: string;
-        };
-        if (!res.ok) throw new Error(data.error || "Request failed");
+        const raw = await res.text();
+        let data: { message?: string; error?: string };
+        try {
+          data = JSON.parse(raw) as { message?: string; error?: string };
+        } catch {
+          setMessages((m) => [
+            ...m,
+            { role: "assistant", content: `Sorry, the cashier returned an invalid response (${res.status}). Check that GOOGLE_GENAI_API_KEY is set and try again.` },
+          ]);
+          return;
+        }
+        if (!res.ok) {
+          const errMsg = data.error || "Request failed";
+          setMessages((m) => [
+            ...m,
+            { role: "assistant", content: `Sorry, the cashier isn’t responding: ${errMsg}. If you’re on the live site, check that GOOGLE_GENAI_API_KEY is set in Railway.` },
+          ]);
+          return;
+        }
         setMessages((m) => [
           ...m,
           { role: "assistant", content: data.message ?? "Something went wrong." },
@@ -65,11 +79,12 @@ export default function CustomerPage() {
           }
         }
       } catch (e) {
+        const errMsg = e instanceof Error ? e.message : "Network or server error";
         setMessages((m) => [
           ...m,
           {
             role: "assistant",
-            content: "Sorry, something went wrong. Try again or type your order.",
+            content: `Sorry, something went wrong: ${errMsg}. Try again or check your connection. If the problem continues, check that GOOGLE_GENAI_API_KEY is set.`,
           },
         ]);
       } finally {

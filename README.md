@@ -12,7 +12,7 @@ AI voice cashier for a busy NYC coffee shop: customers order by voice or text, b
 
 - **App:** Next.js 15 (App Router), React 19, TypeScript, Tailwind
 - **Database:** Supabase (PostgreSQL)
-- **LLM:** OpenAI (GPT-4o-mini)
+- **LLM:** Google Gemini (Gemini 3 Pro)
 - **Voice:** ElevenLabs (speech-to-text, text-to-speech)
 - **Hosting:** Railway (recommended)
 
@@ -33,7 +33,7 @@ AI voice cashier for a busy NYC coffee shop: customers order by voice or text, b
 3. **Environment**
    - Copy `.env.example` to `.env.local`.
    - Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
-   - Set `OPENAI_API_KEY` for the chat.
+   - Set `GOOGLE_GENAI_API_KEY` for the chat (get from [Google AI Studio](https://aistudio.google.com/apikey)).
    - Optionally set `ELEVENLABS_API_KEY` (and `ELEVENLABS_VOICE_ID`) for voice; without them, ordering is text-only.
 
 4. **Menu image**
@@ -50,7 +50,7 @@ AI voice cashier for a busy NYC coffee shop: customers order by voice or text, b
 
 1. Push the repo to GitHub.
 2. In [Railway](https://railway.app), New Project → Deploy from GitHub repo.
-3. Add environment variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `OPENAI_API_KEY`, and optionally `ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID`.
+3. Add environment variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `GOOGLE_GENAI_API_KEY`, and optionally `ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID`.
 4. Build command: `npm run build`. Start command: `npm start`. Root directory: project root.
 5. Deploy. Railway will assign a URL.
 

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
+import { GoogleGenAI } from "@google/genai";
 import { CASHIER_SYSTEM_PROMPT } from "@/lib/prompt";
 import { getSupabase } from "@/lib/supabase";
 import type { LineItem } from "@/lib/types";
@@ -26,27 +26,69 @@ export async function POST(request: Request) {
   if (!Array.isArray(messages) || messages.length === 0) {
     return NextResponse.json({ error: "messages required" }, { status: 400 });
   }
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "OPENAI_API_KEY not configured" },
+      { error: "GOOGLE_GENAI_API_KEY or GEMINI_API_KEY not configured" },
       { status: 500 }
     );
   }
 
-  const openai = new OpenAI({ apiKey });
-  const fullMessages = [
-    { role: "system" as const, content: CASHIER_SYSTEM_PROMPT },
-    ...messages.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
-  ];
+  const ai = new GoogleGenAI({ apiKey });
+  const preferredModel = process.env.GEMINI_CHAT_MODEL || "gemini-2.0-flash";
+  const fallbackModel = "gemini-1.5-flash";
 
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: fullMessages,
-    temperature: 0.6,
-  });
+  const contents = messages
+    .filter((m) => m.role !== "system")
+    .map((m) => ({
+      role: m.role === "user" ? "user" as const : "model" as const,
+      parts: [{ text: m.content }],
+    }));
+  // Gemini expects conversation to start with user; drop leading model messages
+  while (contents.length > 0 && contents[0].role !== "user") {
+    contents.shift();
+  }
+  if (contents.length === 0) {
+    return NextResponse.json(
+      { error: "No user message in conversation" },
+      { status: 400 }
+    );
+  }
 
-  const content = completion.choices[0]?.message?.content?.trim() ?? "";
+  let content: string;
+  const tryModel = async (model: string) => {
+    const response = await ai.models.generateContent({
+      model,
+      config: {
+        systemInstruction: CASHIER_SYSTEM_PROMPT,
+        temperature: 0.5,
+      },
+      contents,
+    });
+    return (response.text ?? "").trim();
+  };
+  try {
+    content = await tryModel(preferredModel);
+  } catch (err) {
+    if (preferredModel !== fallbackModel) {
+      try {
+        content = await tryModel(fallbackModel);
+      } catch {
+        const msg = err instanceof Error ? err.message : "Gemini request failed";
+        return NextResponse.json(
+          { error: msg },
+          { status: 502 }
+        );
+      }
+    } else {
+      const msg = err instanceof Error ? err.message : "Gemini request failed";
+      return NextResponse.json(
+        { error: msg },
+        { status: 502 }
+      );
+    }
+  }
+
   const orderPayload = extractOrderJson(content);
 
   if (orderPayload) {
