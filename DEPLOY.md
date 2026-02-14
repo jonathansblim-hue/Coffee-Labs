@@ -1,4 +1,4 @@
-# Publish to GitHub & Deploy on Railway
+# Publish to GitHub & Deploy on Vercel
 
 ## Part 1: Publish to GitHub
 
@@ -9,27 +9,22 @@ In a terminal, from your project folder:
 ```bash
 cd "/Users/jonathanlim/Documents/Coffee Labs"
 
-# Start tracking the project
 git init
-
-# Stage everything ( .env.local is ignored and won’t be committed)
 git add .
-
-# First commit
 git commit -m "Initial commit: NYC Coffee AI cashier"
 ```
 
 ### 2. Create the repo on GitHub
 
 1. Go to **https://github.com/new**
-2. **Repository name:** e.g. `nyc-coffee-ai-cashier` (or any name you like)
+2. **Repository name:** e.g. `Coffee-Labs` or `nyc-coffee-ai-cashier`
 3. Choose **Public**
 4. **Do not** add a README, .gitignore, or license (you already have these)
 5. Click **Create repository**
 
 ### 3. Connect your project and push
 
-GitHub will show “Quick setup” commands. Use these (replace `YOUR_USERNAME` and `YOUR_REPO` with your GitHub username and repo name):
+Use the commands GitHub shows (replace with your username and repo name):
 
 ```bash
 git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
@@ -37,69 +32,54 @@ git branch -M main
 git push -u origin main
 ```
 
-Example: if your repo is `https://github.com/jonathanlim/nyc-coffee`, then:
+Example:
 
 ```bash
-git remote add origin https://github.com/jonathanlim/nyc-coffee.git
+git remote add origin https://github.com/jonathansblim-hue/Coffee-Labs.git
 git branch -M main
 git push -u origin main
 ```
 
-`orders.csv` is already in the project, so it will be in the repo after you push.
+`orders.csv` is already in the project and will be in the repo after you push.
 
 ---
 
-## Part 2: Deploy on Railway
+## Part 2: Deploy on Vercel
 
-### 1. Create a Railway project
+### 1. Import the project
 
-1. Go to **https://railway.app** and sign in (e.g. with GitHub).
-2. Click **New Project**.
-3. Choose **Deploy from GitHub repo**.
-4. Select the repo you just pushed (e.g. `nyc-coffee-ai-cashier`).
-5. Railway will detect Next.js and use default build/start; you’ll set env vars next.
+1. Go to **https://vercel.com** and sign in (e.g. with GitHub).
+2. Click **Add New** → **Project**.
+3. Import your GitHub repo (e.g. `Coffee-Labs`). Vercel will detect Next.js.
 
 ### 2. Add environment variables
 
-1. In your Railway project, open your **service** (the one that was created from the repo).
-2. Go to the **Variables** tab (or **Settings** → **Variables**).
-3. Add the same variables you use in `.env.local` (use **Add Variable** or **Bulk Add**):
+Before or after the first deploy, open the project → **Settings** → **Environment Variables**. Add:
 
-   - `NEXT_PUBLIC_SUPABASE_URL` = your Supabase project URL  
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = your Supabase anon/publishable key  
-   - `OPENAI_API_KEY` = your OpenAI API key  
+| Name | Value | Notes |
+|------|--------|------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL | From Supabase → Settings → API |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anon key | Same place |
+| `GOOGLE_GENAI_API_KEY` | Your Gemini API key | From [Google AI Studio](https://aistudio.google.com/apikey) |
+| `ELEVENLABS_API_KEY` | (optional) ElevenLabs key | For voice; omit for text-only |
+| `ELEVENLABS_VOICE_ID` | (optional) e.g. `21m00Tcm4TlvDq8ikWAM` | Optional |
 
-   Optional (for voice):
+Apply to **Production** (and Preview if you want). Save.
 
-   - `ELEVENLABS_API_KEY`  
-   - `ELEVENLABS_VOICE_ID` = `21m00Tcm4TlvDq8ikWAM`  
+### 3. Deploy
 
-4. Save. Railway will redeploy with the new variables.
-
-### 3. Set build and start commands (if needed)
-
-Railway usually auto-detects Next.js. If it doesn’t:
-
-1. Open your service → **Settings** (or the **Build** / **Deploy** section).
-2. Set **Build Command:** `npm run build`
-3. Set **Start Command:** `npm start`
-4. **Root Directory:** leave blank (project root).
+- If you added variables before deploying: click **Deploy** on the import screen.
+- If the project already exists: push a commit to trigger a new deploy, or go to **Deployments** → **Redeploy** (and optionally “Redeploy with existing Build Cache” off so env is fresh).
 
 ### 4. Get your live URL
 
-1. In your service, open the **Settings** tab.
-2. Under **Networking** or **Domains**, click **Generate Domain** (or **Add domain**).
-3. Copy the URL (e.g. `https://your-app.up.railway.app`) and open it in a browser.
-
-Your app is now live. Orders still use the same Supabase project, so data is shared between local and deployed app.
+After the deploy finishes, Vercel shows a URL like `https://your-project.vercel.app`. Open it to use the app. You can add a custom domain under **Settings** → **Domains**.
 
 ---
 
 ## Checklist
 
-- [ ] `git init` and first commit done
-- [ ] GitHub repo created (public)
-- [ ] `git remote add origin` and `git push` done
-- [ ] Railway project created from that GitHub repo
-- [ ] Env vars added in Railway (Supabase URL/key, OpenAI key)
-- [ ] Domain generated and live URL opened
+- [ ] Repo pushed to GitHub (with `orders.csv`)
+- [ ] Vercel project created and linked to the repo
+- [ ] Env vars set in Vercel (Supabase URL/key, `GOOGLE_GENAI_API_KEY`, optional ElevenLabs)
+- [ ] Deploy succeeded and live URL works

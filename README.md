@@ -14,7 +14,7 @@ AI voice cashier for a busy NYC coffee shop: customers order by voice or text, b
 - **Database:** Supabase (PostgreSQL)
 - **LLM:** Google Gemini (Gemini 3 Pro)
 - **Voice:** ElevenLabs (speech-to-text, text-to-speech)
-- **Hosting:** Railway (recommended)
+- **Hosting:** Vercel
 
 ## Setup
 
@@ -46,13 +46,17 @@ AI voice cashier for a busy NYC coffee shop: customers order by voice or text, b
    ```
    Open [http://localhost:3000](http://localhost:3000). Use **Order** (customer), **Barista**, and **Dashboard** (owner).
 
-## Deploy on Railway
+## Deploy on Vercel
 
 1. Push the repo to GitHub.
-2. In [Railway](https://railway.app), New Project → Deploy from GitHub repo.
-3. Add environment variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `GOOGLE_GENAI_API_KEY`, and optionally `ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID`.
-4. Build command: `npm run build`. Start command: `npm start`. Root directory: project root.
-5. Deploy. Railway will assign a URL.
+2. Go to [vercel.com](https://vercel.com) and sign in (e.g. with GitHub).
+3. **Add New** → **Project** → Import your GitHub repo (e.g. `Coffee-Labs`).
+4. Under **Environment Variables**, add:
+   - `NEXT_PUBLIC_SUPABASE_URL` = your Supabase project URL
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = your Supabase anon key
+   - `GOOGLE_GENAI_API_KEY` = your Gemini API key ([Google AI Studio](https://aistudio.google.com/apikey))
+   - Optionally: `ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID`
+5. Click **Deploy**. Vercel will build and assign a URL (e.g. `your-project.vercel.app`).
 
 ## Data
 

@@ -52,7 +52,7 @@ export default function CustomerPage() {
           const errMsg = data.error || "Request failed";
           setMessages((m) => [
             ...m,
-            { role: "assistant", content: `Sorry, the cashier isn’t responding: ${errMsg}. If you’re on the live site, check that GOOGLE_GENAI_API_KEY is set in Railway.` },
+            { role: "assistant", content: `Sorry, the cashier isn’t responding: ${errMsg}. If you’re on the live site, check that GOOGLE_GENAI_API_KEY is set in Vercel (Settings → Environment Variables).` },
           ]);
           return;
         }

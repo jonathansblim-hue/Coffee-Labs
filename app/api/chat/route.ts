@@ -34,15 +34,17 @@ export async function GET() {
   );
   // All env var names (no values) so we can see if the key is there under another name
   const allEnvKeys = Object.keys(process.env).sort();
+  const railwayEnv = process.env.RAILWAY_ENVIRONMENT_NAME;
   return NextResponse.json({
     ok: true,
     geminiConfigured: hasKey,
     keyLength: hasKey ? key.length : 0,
     relevantEnvKeys,
     allEnvKeys,
+    railwayEnvironment: railwayEnv,
     hint: hasKey
       ? "Key is set. If chat still fails, the key may be invalid or the model unavailable."
-      : `No Gemini key found. Check allEnvKeys for typos. Add GOOGLE_GENAI_API_KEY on the SERVICE (not project) → Variables → Redeploy.`,
+      : `No Gemini key found. Check allEnvKeys for typos. Add GOOGLE_GENAI_API_KEY in Vercel → Settings → Environment Variables → Redeploy.`,
   });
 }
 
