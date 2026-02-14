@@ -26,21 +26,23 @@ export async function GET() {
     process.env.GEMINI_API_KEY ||
     process.env.GOOGLE_API_KEY;
   const hasKey = !!key;
-  // Show which env keys exist that might be the Gemini key (names only, no values)
-  const envKeys = Object.keys(process.env).filter(
+  const relevantEnvKeys = Object.keys(process.env).filter(
     (k) =>
       k.includes("GEMINI") ||
       k.includes("GOOGLE") ||
       k.includes("GENAI")
   );
+  // All env var names (no values) so we can see if the key is there under another name
+  const allEnvKeys = Object.keys(process.env).sort();
   return NextResponse.json({
     ok: true,
     geminiConfigured: hasKey,
     keyLength: hasKey ? key.length : 0,
-    relevantEnvKeys: envKeys,
+    relevantEnvKeys,
+    allEnvKeys,
     hint: hasKey
       ? "Key is set. If chat still fails, the key may be invalid or the model unavailable."
-      : `No Gemini key found. Railway has these related vars: ${envKeys.length ? envKeys.join(", ") : "none"}. If you added GOOGLE_GENAI_API_KEY, redeploy the service (Deployments → ⋮ → Redeploy).`,
+      : `No Gemini key found. Check allEnvKeys for typos. Add GOOGLE_GENAI_API_KEY on the SERVICE (not project) → Variables → Redeploy.`,
   });
 }
 
